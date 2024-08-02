@@ -8,15 +8,14 @@ import java.util.Properties;
 
 public class ConfigFileManager extends FileManager{
 
-    public ConfigFileManager(String file_name) {
-        super(file_name);
-        
+    public ConfigFileManager(String file_path) {
+        super(file_path);
     }
 
     public String getPropertyData(String property){
         Properties properties = new Properties();
         
-        try (InputStream input = new FileInputStream(this.file_name)) {
+        try (InputStream input = new FileInputStream(this.file_path)) {
             properties.load(input);
 
             return properties.getProperty(property);

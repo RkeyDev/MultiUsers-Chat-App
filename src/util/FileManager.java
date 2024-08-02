@@ -1,10 +1,11 @@
 package util;
 
 public abstract class FileManager {
-    protected String file_name;
+    protected String file_path;
     
-    public FileManager(String file_name){
-        this.file_name = file_name;
+    public FileManager(String file_path){
+        
+        this.file_path = file_path;
     }
 
 

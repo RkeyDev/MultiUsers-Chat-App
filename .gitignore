@@ -1,1 +1,6 @@
+#Visual studio
 .vscode/
+
+#Misc
+*.class
+
