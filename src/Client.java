@@ -1,11 +1,9 @@
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.Scanner;
 
 import util.ClientMessageHandler;
 import util.ConfigFileManager;
-
 
 public class Client {
 
@@ -18,6 +16,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
         System.out.println("Please enter a username: ");
         String username = scanner.nextLine();
+
         joinChat(username);
     }
 

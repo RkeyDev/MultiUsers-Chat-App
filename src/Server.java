@@ -7,8 +7,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
-
+import util.ChatLogger;
 import util.ConfigFileManager;
 import util.TextDecorations;
 
@@ -20,16 +21,33 @@ public class Server {
 
     public static Map<String,Socket> connectedClients = new HashMap<>(); //Connected users map: KEY-username VALUE-clientSocket
 
+    
+
+
     public static void main(String[] args){
         
         
 
         try(ServerSocket serverSocket = new ServerSocket(SERVER_PORT)){
-            System.out.println("Server listening on port " + SERVER_PORT);
+            new ChatLogger("SERVER","Server is online and listening on port " + SERVER_PORT,null);
 
-            while (true)
+            
+            new Thread(()->{
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("Press enter to shut down the server");
+                scanner.nextLine();
+                scanner.close();
+                
+                shutDownClientConnections();
+                try {
+                    serverSocket.close(); //Shut down server
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            while (!serverSocket.isClosed())
                 acceptClients(serverSocket); //Accept clients to the server and handle them
-
         }
 
         catch(IOException e){
@@ -38,7 +56,8 @@ public class Server {
     }
 
     public static void acceptClients(ServerSocket serverSocket) throws IOException{
-            
+        
+        try{ 
         Socket clientSocket = serverSocket.accept(); //Accept clients to the server
         System.out.println("Client connected to the server.");
         
@@ -50,7 +69,9 @@ public class Server {
                 e.printStackTrace();
             }
         }).start(); //Handle client
-              
+        }catch(SocketException e){
+            System.out.println("Server has shut down.");
+        }
     }
 
     public static void handleClients(Socket clientSocket) throws IOException{
@@ -62,7 +83,7 @@ public class Server {
             connectedClients.put(clientName,clientSocket); //Add client socket to the connected clients list
             
             String userJoinMessage = clientName + " joined the chat.";
-            broadcastMessage(clientSocket, userJoinMessage,TextDecorations.GREEN.getDecorationCode()); //Display a join message to the users
+            broadcastMessage(clientSocket, userJoinMessage,"SERVER",TextDecorations.GREEN.getDecorationCode()); //Display a join message to the users
             displayOnlineUsersNumber(null);
             
 
@@ -72,7 +93,7 @@ public class Server {
             while ((clientMsg = clientBufferedReader.readLine()) != null) {
                 System.out.println(clientMsg);
 
-                broadcastMessage(clientSocket,clientName + ": " + clientMsg,null); 
+                broadcastMessage(clientSocket,clientName + ": " + clientMsg,clientName,null); 
                 
             }
         }catch(SocketException e){
@@ -80,15 +101,18 @@ public class Server {
             
             System.out.println(userLeftMessage);
             connectedClients.remove(clientName); //Remove the client from the connected clients list 
-            broadcastMessage(clientSocket, userLeftMessage,TextDecorations.RED.getDecorationCode());
+            broadcastMessage(clientSocket, userLeftMessage,"SERVER",TextDecorations.RED.getDecorationCode());
             displayOnlineUsersNumber(clientSocket);
         }
 
         }
     }
 
-    public static void broadcastMessage(Socket clientSocket, String msg,String messageColor) throws IOException{
-        msg = (messageColor!=null?messageColor:"")+msg+TextDecorations.RESET_COLOR.getDecorationCode();
+    public static void broadcastMessage(Socket clientSocket, String msg,String msgAuthor,String messageColor) throws IOException{
+        new ChatLogger(msgAuthor, msg, clientSocket);
+
+        //Applying decorations to the msg
+        msg = (messageColor!=null?messageColor:"")+msg+TextDecorations.RESET_COLOR.getDecorationCode(); 
         
         boolean isMessageSender;
         try{
@@ -109,7 +133,21 @@ public class Server {
 
     public static void displayOnlineUsersNumber(Socket clientSocket) throws IOException{
         String onlineUsersMsg = "[" + connectedClients.size() + " Online users]";
-        broadcastMessage(clientSocket, onlineUsersMsg,TextDecorations.GREEN.getDecorationCode()); //Display online users amount
+        broadcastMessage(clientSocket, onlineUsersMsg,"SERVER",TextDecorations.GREEN.getDecorationCode()); //Display online users amount
+    }
+
+    public static void shutDownClientConnections(){
+        try{
+                    
+            broadcastMessage(null, "Server is shutting down", "SERVER", TextDecorations.RED.getDecorationCode());
+            
+            for (Socket clientSocekt : connectedClients.values())
+                clientSocekt.close(); //Close all client sockets
+
+            
+        }catch(IOException e){
+            e.printStackTrace();
+        }
     }
 }
 
