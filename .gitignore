@@ -1,6 +1,9 @@
 #Visual studio
 .vscode/
 
+#config
+config.properties
+
 #Misc
 *.class
 

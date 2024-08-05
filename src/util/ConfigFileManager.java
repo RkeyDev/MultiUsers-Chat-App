@@ -15,7 +15,7 @@ public class ConfigFileManager extends FileManager{
         Properties properties = new Properties();
         
         try (InputStream input = new FileInputStream(this.file_path)) {
-            properties.load(input);
+            properties.load(input); //Load .properties file
 
             return properties.getProperty(property);
 

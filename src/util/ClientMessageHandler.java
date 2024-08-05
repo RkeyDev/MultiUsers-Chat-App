@@ -1,7 +1,5 @@
 package util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +9,7 @@ import java.util.Scanner;
 
 public class ClientMessageHandler {
     
+
     private Socket clientSocket;
 
     public ClientMessageHandler(Socket client_socket){
@@ -20,26 +19,40 @@ public class ClientMessageHandler {
 
     public class SendMessage extends Thread {
         Scanner scanner = new Scanner(System.in);
-        
+        String username;
+
+        public SendMessage(String username){
+            this.username = username;
+            sendMessageToServer(this.username);
+        }
+
         @Override
         public void run() {
+            
+            
+
+            while(!clientSocket.isClosed()){
+
+                String clientMsg = scanner.nextLine(); 
+                System.out.print(TextDecorations.CLEAR_LINE.getDecorationCode()); //Clear the line
+                System.out.print(TextDecorations.CURSOR_UP.getDecorationCode()); //Move the cursor up
+                System.out.println("You: " + clientMsg);
+                
+                sendMessageToServer(clientMsg);
+                
+            }
+        }
+
+        private void sendMessageToServer(String clientMsg){
             PrintWriter serverWriter;
-
-            while(true){
-
-                System.out.print("You: "); //Display the message to the client
-                String clientMsg = scanner.nextLine(); //Read input from the client
-
-                try{
+            try{
                 serverWriter = new PrintWriter(clientSocket.getOutputStream(),true);
                 serverWriter.println(clientMsg); //Send the message to the server
 
                 } catch (IOException e) {
-                    scanner.close();
+                    scanner.close(); //Close the scanner to avoid resource leak
                     e.printStackTrace();
                 }
-                
-            }
         }
            
         
@@ -52,8 +65,7 @@ public class ClientMessageHandler {
             while (!clientSocket.isClosed()) {
                 
             
-                try
-                {
+                try{
                     BufferedReader serverBufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                     //Receive message from the server
                     String receivedMsg; 

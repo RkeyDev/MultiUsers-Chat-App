@@ -7,6 +7,4 @@ public abstract class FileManager {
         
         this.file_path = file_path;
     }
-
-
 }
