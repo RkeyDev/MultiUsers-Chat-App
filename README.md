@@ -3,5 +3,5 @@ A multi-users chat created with Java using the socket technology. This app has n
 
 
 ## Set up
-crate a folder named "chat-log" in the project folder
-change the ip and the port to whatever you want in the config.properties
+1. crate a folder named "chat-log" in the project folder
+2. change the ip and the port to whatever you want in the config.properties
