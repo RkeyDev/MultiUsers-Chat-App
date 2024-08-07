@@ -25,37 +25,27 @@ public class ChatLogger {
         this.client = clientSocket;
 
 
-        this.logFilePath = "../chat-log/"+getCurrentDate()+".log";
-        File file = new File(logFilePath.toString());
-
-        if(!file.exists()){
-            try {
-                file.createNewFile(); //Create the log file if it doesnt exist
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.logFilePath = "chat-log/"+getCurrentDate()+".log";
+        File logFile = new File(logFilePath);
+        logFile.getParentFile().mkdirs(); //Create the directory and the log file if it doesnt exist
+        
 
         log(); //Log the last message in the chat
     }
 
 
     private void log(){
+        String currentTime = getCurrentTime();
+        String currentDate = getCurrentDate();
+
+        String messageContent = (message.contains(":")?message.split(":")[1].replaceFirst(" ", ""):message);
+        String clientInfo = (this.client!=null?"[Client: " + this.client.toString() +"]" :"");
+
+
+        String logMessage = currentDate +":" + currentTime+ " [Message Author: " +"'" + author + "'" + "] [Message content: '"+messageContent+ "'] " + clientInfo +"\n";
         
-
         try(BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(logFilePath.toString(),true))){
-            String logMessage = getCurrentDate()+
-            ":"+getCurrentTime()
-            + " [Message Author: " +
-             "'" + this.author + "'" + 
-             "] [Message content: '"
-              +
-              (this.message.contains(":")?this.message.split(":")[1].replaceFirst(" ", ""):this.message)
-              
-              + "'] " + (this.client!=null?"[Client: " + this.client.toString() +"]" :"") +"\n";
-
             bufferedWriter.write(logMessage);
-
 
         }catch(IOException e){
             

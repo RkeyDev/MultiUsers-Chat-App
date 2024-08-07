@@ -16,7 +16,7 @@ import util.TextDecorations;
 public class Server {
 
 
-    public static ConfigFileManager configFileManager = new ConfigFileManager("../config.properties");
+    public static ConfigFileManager configFileManager = new ConfigFileManager("config.properties");
     public static final int SERVER_PORT = Integer.parseInt(configFileManager.getPropertyData("server.port"));
 
     public static Map<String,Socket> connectedClients = new HashMap<>(); //Connected users map: KEY-username VALUE-clientSocket
@@ -58,9 +58,7 @@ public class Server {
     public static void acceptClients(ServerSocket serverSocket) throws IOException{
         
         try{ 
-        Socket clientSocket = serverSocket.accept(); //Accept clients to the server
-        System.out.println("Client connected to the server.");
-        
+        Socket clientSocket = serverSocket.accept(); //Accept clients to the server        
 
         new Thread(() -> {
             try {
@@ -90,16 +88,13 @@ public class Server {
 
             String clientMsg;
             try{
-            while ((clientMsg = clientBufferedReader.readLine()) != null) {
-                System.out.println(clientMsg);
-
+            while ((clientMsg = clientBufferedReader.readLine()) != null) 
                 broadcastMessage(clientSocket,clientName + ": " + clientMsg,clientName,null); 
                 
-            }
+            
         }catch(SocketException e){
             String userLeftMessage = clientName + " has left the chat.";
             
-            System.out.println(userLeftMessage);
             connectedClients.remove(clientName); //Remove the client from the connected clients list 
             broadcastMessage(clientSocket, userLeftMessage,"SERVER",TextDecorations.RED.getDecorationCode());
             displayOnlineUsersNumber(clientSocket);
